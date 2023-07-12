@@ -1,5 +1,6 @@
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.math.max
 
 class CommissionTest {
 
@@ -44,4 +45,40 @@ class CommissionTest {
         assertEquals(ERROR_LIMIT, result)
     }
 
+
+    @Test
+    fun testCommissionForMastercardExceedLimit() {
+        val result = commission(TYPE_MASTERCARD, 160_000, 0)
+        assertEquals(ERROR_LIMIT, result)
+    }
+
+
+
+
+    @Test
+    fun testCommissionForVisaExceedLimit() {
+        val result = commission(TYPE_VISA, 700_000, 0)
+        assertEquals(ERROR_LIMIT, result)
+    }
+
+    @Test
+    fun testCommissionForInvalidCardType() {
+        val result = commission("American Express", 10_000, 0)
+        assertEquals(ERROR_TYPE, result)
+    }
+
+    private fun commission(type: String, amount: Int, previous: Int): Int =
+        when (type) {
+            TYPE_MASTERCARD -> if (amount + previous > 150_000) ERROR_LIMIT else max(35, (amount * 0.005).toInt())
+            TYPE_VISA -> {
+                when {
+                    amount + previous <= 10_000 -> 0
+                    amount + previous > 600_000 -> ERROR_LIMIT
+                    else -> max(35, (amount * 0.005).toInt())
+                }
+            }
+            else -> ERROR_TYPE
+        }
 }
+
+
